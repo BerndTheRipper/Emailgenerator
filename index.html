@@ -11,6 +11,10 @@
 		}
 
 		async function formSubmitted(e) {
+			let form = e.target;
+			let ul = document.querySelector("ul");
+			ul.innerHTML = "";
+
 			e.preventDefault();
 			let components = {
 				firstNames: [],
@@ -20,26 +24,25 @@
 			};
 
 			let outputCombos = [];
-			let outputAmount = parseInt(temp1.outputAmount.value);
+			let outputAmount = parseInt(form.outputAmount.value);
 
-			for (let fileHandle of e.target.children) {
+			for (let fileHandle of form.children) {
 				if (fileHandle.type != "file") continue;
 				if (!fileHandle.files.length) throw new Error("Doesn't contain files");
 				let file = fileHandle.files[0];
 				let fileContents = await file.text();
-				components[fileHandle.name] = fileContents.split("\n");
+				components[fileHandle.name] = fileContents.split(/[\n\r]+/);
 			}
-
 			for (let i = 0; i < outputAmount; i++) {
 				let indexes = {
-					firstNames: Math.floor(Math.random() * components.firstNames.length),
-					lastNames: Math.floor(Math.random() * components.lastNames.length),
-					slds: Math.floor(Math.random() * components.slds.length),
-					tlds: Math.floor(Math.random() * components.tlds.length)
+					firstNames: Math.floor(Math.random() * (components.firstNames.length - 1)),
+					lastNames: Math.floor(Math.random() * (components.lastNames.length - 1)),
+					slds: Math.floor(Math.random() * (components.slds.length - 1)),
+					tlds: Math.floor(Math.random() * (components.tlds.length - 1))
 				}
 
 				let indexString = "";
-				for (let value of indexes) {
+				for (let value of Object.values(indexes)) {
 					indexString += value + ",";
 				}
 
@@ -49,28 +52,31 @@
 					continue;
 				}
 
-				outputCombos.push(components.firstNames[indexes.firstNames] + "." + components.lastNames[indexes.lastNames] + "@" + components.slds[indexes.slds] + "." + components.tlds[indexes.tlds]);
+				outputCombos.push(indexString);
+				addElementToList(ul, components.firstNames[indexes.firstNames] + "." + components.lastNames[indexes.lastNames] + "@" + components.slds[indexes.slds] + "." + components.tlds[indexes.tlds]);
 			}
 
 		}
 
-		addElementToList(list, text){
-			let li = document.
-			//TODO continue here
+		function addElementToList(list, text) {
+			let li = document.createElement("li");
+			li.innerText = text;
+			list.appendChild(li);
+			return li;
 		}
 	</script>
 </head>
 
 <body>
 	<form>
-		<input type="file" name="firstNames" id="firstNamesFileInput"><br>
-		<input type="file" name="lastNames" id="lastNamesFileInput"><br>
-		<input type="file" name="slds" id="sldsFileInput"><br>
-		<input type="file" name="tlds" id="tldsFileInput"><br>
-		<input type="number" name="outputAmount" id="amountInput" min="0"><br>
+		Vornamen: <input type="file" name="firstNames" id="firstNamesFileInput"><br>
+		Nachnamen: <input type="file" name="lastNames" id="lastNamesFileInput"><br>
+		slds: <input type="file" name="slds" id="sldsFileInput"><br>
+		tlds: <input type="file" name="tlds" id="tldsFileInput"><br>
+		Anzahl der E-Mail-Adressen: <input type="number" name="outputAmount" id="amountInput" min="0"><br>
 		<input type="submit" value="Submit">
 	</form>
-	<ul id="output">
+	<ul>
 	</ul>
 </body>
 
