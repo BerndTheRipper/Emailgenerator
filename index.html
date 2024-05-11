@@ -8,12 +8,13 @@
 	<script>
 		window.onload = () => {
 			document.querySelector("form").onsubmit = formSubmitted;
+			document.querySelector("button").onclick = downloadList;
 		}
 
 		async function formSubmitted(e) {
 			let form = e.target;
-			let ul = document.querySelector("ul");
-			ul.innerHTML = "";
+			let ol = document.querySelector("ol");
+			ol.innerHTML = "";
 
 			e.preventDefault();
 			let components = {
@@ -53,9 +54,29 @@
 				}
 
 				outputCombos.push(indexString);
-				addElementToList(ul, components.firstNames[indexes.firstNames] + "." + components.lastNames[indexes.lastNames] + "@" + components.slds[indexes.slds] + "." + components.tlds[indexes.tlds]);
+				addElementToList(ol, components.firstNames[indexes.firstNames] + "." + components.lastNames[indexes.lastNames] + "@" + components.slds[indexes.slds] + "." + components.tlds[indexes.tlds]);
 			}
 
+		}
+
+		function downloadList(e) {
+			let ol = document.querySelector("ol");
+			let downloadText = ol.children[0].innerText;
+
+			for (let i = 1; i < ol.children.length; i++) {
+				downloadText += "\n" + ol.children[i].innerText;
+			}
+
+			let blob = new Blob([downloadText], {
+				type: "text/plain"
+			});
+
+			let url = URL.createObjectURL(blob);
+
+			let a = document.createElement("a");
+			a.download = "fakeEmails.txt";
+			a.href = url;
+			a.click();
 		}
 
 		function addElementToList(list, text) {
@@ -76,8 +97,9 @@
 		Anzahl der E-Mail-Adressen: <input type="number" name="outputAmount" id="amountInput" min="0"><br>
 		<input type="submit" value="Submit">
 	</form>
-	<ul>
-	</ul>
+	<button>Liste herunterladen</button>
+	<ol>
+	</ol>
 </body>
 
 </html>
